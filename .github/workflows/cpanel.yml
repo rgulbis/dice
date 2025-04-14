@@ -33,12 +33,12 @@ jobs:
           fi
 
       - name: Deploy to cPanel
-        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: "dist/"  # Vite's default output
-          server-dir: "greact"  # Target directory
+          server-dir: "/greact"  # Target directory
           port: 21            # Standard FTP port
           protocol: ftp       # Explicitly specify FTP
