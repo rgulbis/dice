@@ -1,44 +1,41 @@
-name: Deploy Vite to cPanel
+name: 🚀 Shipping Build
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 jobs:
-  deploy:
+  FTP-Deploy-Action:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # Vite works best with Node 18+
-
-      - name: Install dependencies
-        run: npm install
-
-      # Vite's build command
-      - name: Build Vite project
-        run: npm run build
-
-      # Verify dist/ exists and has files
-      - name: Validate build output
+          node-version: '16'
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        id: cache-node-modules
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      - name: 🔨 Install Dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
-          if [ ! -d "dist" ]; then
-            echo "ERROR: dist/ directory missing!"
-            exit 1
-          fi
-          if [ -z "$(ls -A dist)" ]; then
-            echo "ERROR: dist/ is empty!"
-            exit 1
-          fi
-
-      - name: Deploy to cPanel
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+          npm install
+        env:
+         NODE_OPTIONS: "--max_old_space_size=4096"
+         CI: false
+      - name: 🏗 Build Project
+        run: npm run build
+      - name: 📂 Sync folders and files to the server
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: "dist/"  # Vite's default output
-          server-dir: "/greact"  # Target directory
-          port: 21            # Standard FTP port
-          protocol: ftp       # Explicitly specify FTP
+          local-dir: dist/
