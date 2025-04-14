@@ -6,7 +6,7 @@ import Flower from './Flower'
 function App() {
     return (
         <>
-            <h1>Minigames</h1>
+            <h1>Minigames!</h1>
             <Dice/>
             <Coin/>
             <Flower/>
